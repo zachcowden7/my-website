@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Country Music Trivia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700;900&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --brown-dark:  #2b1a0e;
+      --brown-mid:   #5c3317;
+      --brown-light: #8b5e3c;
+      --amber:       #d4890a;
+      --gold:        #f0b429;
+      --cream:       #fdf6ec;
+      --off-white:   #f9f2e7;
+      --text:        #2b1a0e;
+      --muted:       #7a5c42;
+      --border:      #ddc9a8;
+      --white:       #ffffff;
+      --correct:     #2e7d32;
+      --wrong:       #c62828;
+      --correct-bg:  #e8f5e9;
+      --wrong-bg:    #ffebee;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background-color: var(--off-white);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      background-color: var(--brown-dark);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 48px;
+      height: 64px;
+    }
+    .nav-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      color: var(--white);
+      letter-spacing: 0.04em;
+    }
+    nav ul {
+      list-style: none;
+      display: flex;
+      gap: 32px;
+    }
+    nav ul a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    nav ul a:hover { color: var(--gold); }
+
+    /* HERO BANNER */
+    .hero {
+      background: linear-gradient(135deg, var(--brown-dark) 0%, var(--brown-mid) 55%, var(--brown-light) 100%);
+      color: var(--white);
+      text-align: center;
+      padding: 56px 24px 48px;
+    }
+    .hero-label {
+      font-size: 0.85rem;
+      font-weight: 600;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 10px;
+    }
+    .hero h1 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2.8rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+    }
+    .hero p {
+      font-size: 1.05rem;
+      color: rgba(255,255,255,0.85);
+    }
+
+    /* GAME WRAPPER */
+    .game-wrapper {
+      max-width: 720px;
+      margin: 48px auto;
+      padding: 0 24px 64px;
+    }
+
+    /* SCORE BAR */
+    .score-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px 24px;
+      margin-bottom: 28px;
+      box-shadow: 0 2px 10px rgba(43,26,14,0.07);
+    }
+    .score-item {
+      text-align: center;
+    }
+    .score-item .score-val {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--amber);
+      display: block;
+    }
+    .score-item .score-lbl {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--muted);
+    }
+
+    /* PROGRESS BAR */
+    .progress-wrap {
+      background: var(--border);
+      border-radius: 99px;
+      height: 8px;
+      margin-bottom: 28px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber), var(--gold));
+      border-radius: 99px;
+      transition: width 0.4s ease;
+    }
+
+    /* QUESTION CARD */
+    .question-card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 36px 40px;
+      box-shadow: 0 2px 16px rgba(43,26,14,0.08);
+      margin-bottom: 20px;
+    }
+    .question-number {
+      font-size: 0.82rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 12px;
+    }
+    .question-text {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--brown-dark);
+      line-height: 1.5;
+      margin-bottom: 28px;
+    }
+
+    /* ANSWER BUTTONS */
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .answer-btn {
+      background: var(--off-white);
+      border: 2px solid var(--border);
+      border-radius: 8px;
+      padding: 14px 18px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.97rem;
+      font-weight: 600;
+      color: var(--brown-dark);
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      line-height: 1.4;
+    }
+    .answer-btn:hover:not(:disabled) {
+      background: var(--cream);
+      border-color: var(--amber);
+      transform: translateY(-2px);
+    }
+    .answer-btn.correct {
+      background: var(--correct-bg);
+      border-color: var(--correct);
+      color: var(--correct);
+    }
+    .answer-btn.wrong {
+      background: var(--wrong-bg);
+      border-color: var(--wrong);
+      color: var(--wrong);
+    }
+    .answer-btn:disabled { cursor: default; transform: none; }
+
+    /* FEEDBACK */
+    .feedback {
+      margin-top: 18px;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 0.97rem;
+      font-weight: 600;
+      display: none;
+    }
+    .feedback.correct {
+      background: var(--correct-bg);
+      color: var(--correct);
+      border: 1px solid var(--correct);
+      display: block;
+    }
+    .feedback.wrong {
+      background: var(--wrong-bg);
+      color: var(--wrong);
+      border: 1px solid var(--wrong);
+      display: block;
+    }
+
+    /* NEXT BUTTON */
+    .btn-next {
+      display: none;
+      margin-top: 20px;
+      width: 100%;
+      background: var(--amber);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 15px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-next:hover { background: var(--brown-mid); }
+
+    /* RESULTS SCREEN */
+    .results-screen {
+      display: none;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 48px 40px;
+      text-align: center;
+      box-shadow: 0 2px 16px rgba(43,26,14,0.08);
+    }
+    .results-screen .trophy { font-size: 4rem; margin-bottom: 16px; }
+    .results-screen h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--brown-dark);
+      margin-bottom: 10px;
+    }
+    .results-screen .final-score {
+      font-size: 3.5rem;
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      color: var(--amber);
+      margin: 16px 0;
+    }
+    .results-screen .result-msg {
+      font-size: 1.05rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .btn-restart {
+      background: var(--brown-mid);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 40px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-restart:hover { background: var(--brown-dark); }
+
+    /* START SCREEN */
+    .start-screen {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 48px 40px;
+      text-align: center;
+      box-shadow: 0 2px 16px rgba(43,26,14,0.08);
+    }
+    .start-screen .guitar { font-size: 4rem; margin-bottom: 16px; }
+    .start-screen h2 {
+      font-family: 'Playfair Display', serif;
+      font-size: 2rem;
+      color: var(--brown-dark);
+      margin-bottom: 12px;
+    }
+    .start-screen p {
+      font-size: 1rem;
+      color: var(--muted);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+    .btn-start {
+      background: var(--amber);
+      color: var(--white);
+      border: none;
+      border-radius: 8px;
+      padding: 15px 48px;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-start:hover { background: var(--brown-mid); }
+
+    /* FOOTER */
+    footer {
+      background-color: var(--brown-dark);
+      color: rgba(255,255,255,0.55);
+      text-align: center;
+      padding: 24px;
+      font-size: 0.88rem;
+    }
+    footer a { color: var(--gold); text-decoration: none; }
+
+    @media (max-width: 560px) {
+      .answers { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 2rem; }
+      nav { padding: 0 20px; }
+      nav ul { gap: 16px; }
+      .question-card { padding: 24px 20px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <span class="nav-brand">Country Music Trivia</span>
+    <ul>
+      <li><a href="index.html">Professional</a></li>
+      <li><a href="interesting.html">Country Music</a></li>
+    </ul>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-label">🎸 Test Your Knowledge</div>
+    <h1>Country Music Trivia</h1>
+    <p>10 questions. All country. How well do you know America's music?</p>
+  </div>
+
+  <!-- GAME -->
+  <div class="game-wrapper">
+
+    <!-- START SCREEN -->
+    <div class="start-screen" id="startScreen">
+      <div class="guitar">🤠</div>
+      <h2>Ready to Play?</h2>
+      <p>You'll get 10 questions about country music history, artists, and hit songs.<br/>
+         Each correct answer is worth 10 points. Good luck!</p>
+      <button class="btn-start" onclick="startGame()">Let's Go!</button>
+    </div>
+
+    <!-- SCORE BAR (hidden until game starts) -->
+    <div class="score-bar" id="scoreBar" style="display:none;">
+      <div class="score-item">
+        <span class="score-val" id="scoreVal">0</span>
+        <span class="score-lbl">Score</span>
+      </div>
+      <div class="score-item">
+        <span class="score-val" id="questionNum">1</span>
+        <span class="score-lbl">Question</span>
+      </div>
+      <div class="score-item">
+        <span class="score-val" id="correctCount">0</span>
+        <span class="score-lbl">Correct</span>
+      </div>
+      <div class="score-item">
+        <span class="score-val" id="wrongCount">0</span>
+        <span class="score-lbl">Wrong</span>
+      </div>
+    </div>
+
+    <!-- PROGRESS BAR -->
+    <div class="progress-wrap" id="progressWrap" style="display:none;">
+      <div class="progress-fill" id="progressFill" style="width:0%"></div>
+    </div>
+
+    <!-- QUESTION CARD -->
+    <div class="question-card" id="questionCard" style="display:none;">
+      <div class="question-number" id="questionLabel">Question 1 of 10</div>
+      <div class="question-text" id="questionText"></div>
+      <div class="answers" id="answersGrid"></div>
+      <div class="feedback" id="feedback"></div>
+      <button class="btn-next" id="btnNext" onclick="nextQuestion()">Next Question →</button>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div class="results-screen" id="resultsScreen">
+      <div class="trophy" id="trophyEmoji">🏆</div>
+      <h2 id="resultTitle">Game Over!</h2>
+      <div class="final-score" id="finalScore">0/100</div>
+      <p class="result-msg" id="resultMsg"></p>
+      <button class="btn-restart" onclick="restartGame()">Play Again</button>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>© 2026 Zachary Cowden · IS 201 Final Project · BYU &nbsp;|&nbsp; <a href="index.html">Professional Page</a></p>
+  </footer>
+
+  <script>
+    const questions = [
+      {
+        question: "Who is known as the 'Father of Country Music'?",
+        answers: ["Hank Williams", "Jimmie Rodgers", "Johnny Cash", "Bill Monroe"],
+        correct: 1,
+        fact: "Jimmie Rodgers is widely recognized as the Father of Country Music, blending blues and folk in the 1920s."
+      },
+      {
+        question: "Which city is considered the home of country music?",
+        answers: ["Austin, Texas", "Memphis, Tennessee", "Nashville, Tennessee", "Atlanta, Georgia"],
+        correct: 2,
+        fact: "Nashville, Tennessee has been the heart of country music since the Grand Ole Opry launched in 1925."
+      },
+      {
+        question: "Dolly Parton wrote 'I Will Always Love You' — but which pop star made it a global phenomenon?",
+        answers: ["Mariah Carey", "Celine Dion", "Whitney Houston", "Madonna"],
+        correct: 2,
+        fact: "Whitney Houston's 1992 cover for 'The Bodyguard' became one of the best-selling singles of all time."
+      },
+      {
+        question: "Morgan Wallen's 'Last Night' spent how many weeks at #1 on the Billboard Hot 100 in 2023?",
+        answers: ["8 weeks", "12 weeks", "16 weeks", "20 weeks"],
+        correct: 2,
+        fact: "'Last Night' spent 16 weeks at #1, making Morgan Wallen the first country artist to top the Hot 100 since 1981."
+      },
+      {
+        question: "Which country artist was nicknamed 'The Man in Black'?",
+        answers: ["Waylon Jennings", "Willie Nelson", "Merle Haggard", "Johnny Cash"],
+        correct: 3,
+        fact: "Johnny Cash earned the nickname 'The Man in Black' and even wrote a song explaining his signature all-black outfits."
+      },
+      {
+        question: "What legendary venue in Nashville has been broadcasting country music since 1925?",
+        answers: ["The Ryman Auditorium", "Grand Ole Opry", "The Bluebird Cafe", "Bridgestone Arena"],
+        correct: 1,
+        fact: "The Grand Ole Opry is the longest-running radio show in U.S. history and the home stage of country music."
+      },
+      {
+        question: "Garth Brooks holds a remarkable record. What is it?",
+        answers: ["Most Grammy wins in country", "Best-selling solo artist in U.S. history", "First country artist on Spotify", "Most weeks at #1 on Hot Country Songs"],
+        correct: 1,
+        fact: "Garth Brooks is the best-selling solo artist in U.S. history, with over 170 million records sold worldwide."
+      },
+      {
+        question: "Which of these songs is by Zach Bryan?",
+        answers: ["Fast Car", "Strawberry Wine", "Something in the Orange", "Jolene"],
+        correct: 2,
+        fact: "'Something in the Orange' by Zach Bryan became a slow-burning viral hit with over 1 billion streams on Spotify."
+      },
+      {
+        question: "Dolly Parton's 'Jolene' was released in what year?",
+        answers: ["1969", "1971", "1973", "1977"],
+        correct: 2,
+        fact: "'Jolene' was released in 1973 and is considered one of the greatest country songs ever written."
+      },
+      {
+        question: "Which country artist was the first to chart all 36 songs from a single album on the Billboard Hot 100 simultaneously?",
+        answers: ["Luke Combs", "Chris Stapleton", "Morgan Wallen", "Blake Shelton"],
+        correct: 2,
+        fact: "Morgan Wallen made history in 2023 when all 36 tracks from 'One Thing at a Time' charted on the Hot 100 at once."
+      }
+    ];
+
+    let current = 0;
+    let score = 0;
+    let correct = 0;
+    let wrong = 0;
+    let answered = false;
+
+    function startGame() {
+      document.getElementById('startScreen').style.display = 'none';
+      document.getElementById('scoreBar').style.display = 'flex';
+      document.getElementById('progressWrap').style.display = 'block';
+      document.getElementById('questionCard').style.display = 'block';
+      loadQuestion();
+    }
+
+    function loadQuestion() {
+      answered = false;
+      const q = questions[current];
+      document.getElementById('questionLabel').textContent = `Question ${current + 1} of ${questions.length}`;
+      document.getElementById('questionNum').textContent = current + 1;
+      document.getElementById('questionText').textContent = q.question;
+      document.getElementById('feedback').className = 'feedback';
+      document.getElementById('feedback').textContent = '';
+      document.getElementById('btnNext').style.display = 'none';
+
+      // Progress bar
+      document.getElementById('progressFill').style.width = `${(current / questions.length) * 100}%`;
+
+      // Build answer buttons
+      const grid = document.getElementById('answersGrid');
+      grid.innerHTML = '';
+      q.answers.forEach((ans, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'answer-btn';
+        btn.textContent = ans;
+        btn.onclick = () => selectAnswer(i);
+        grid.appendChild(btn);
+      });
+    }
+
+    function selectAnswer(index) {
+      if (answered) return;
+      answered = true;
+
+      const q = questions[current];
+      const buttons = document.querySelectorAll('.answer-btn');
+      const feedback = document.getElementById('feedback');
+
+      buttons.forEach(btn => btn.disabled = true);
+      buttons[q.correct].classList.add('correct');
+
+      if (index === q.correct) {
+        score += 10;
+        correct++;
+        feedback.textContent = `✅ Correct! ${q.fact}`;
+        feedback.className = 'feedback correct';
+      } else {
+        wrong++;
+        buttons[index].classList.add('wrong');
+        feedback.textContent = `❌ Not quite! ${q.fact}`;
+        feedback.className = 'feedback wrong';
+      }
+
+      document.getElementById('scoreVal').textContent = score;
+      document.getElementById('correctCount').textContent = correct;
+      document.getElementById('wrongCount').textContent = wrong;
+      document.getElementById('btnNext').style.display = 'block';
+
+      if (current === questions.length - 1) {
+        document.getElementById('btnNext').textContent = 'See Results 🎉';
+      }
+    }
+
+    function nextQuestion() {
+      current++;
+      if (current >= questions.length) {
+        showResults();
+      } else {
+        loadQuestion();
+      }
+    }
+
+    function showResults() {
+      document.getElementById('scoreBar').style.display = 'none';
+      document.getElementById('progressWrap').style.display = 'none';
+      document.getElementById('questionCard').style.display = 'none';
+      document.getElementById('progressFill').style.width = '100%';
+
+      const results = document.getElementById('resultsScreen');
+      results.style.display = 'block';
+      document.getElementById('finalScore').textContent = `${score} / 100`;
+
+      let emoji, title, msg;
+      if (score === 100) {
+        emoji = '🏆'; title = 'Perfect Score!';
+        msg = "You're a true country music expert! Dolly and Garth would be proud.";
+      } else if (score >= 80) {
+        emoji = '🎸'; title = 'Country Legend!';
+        msg = "Outstanding! You clearly know your country music inside and out.";
+      } else if (score >= 60) {
+        emoji = '🤠'; title = 'Solid Cowboy!';
+        msg = "Good job! A few more spins of the classics and you'll be perfect.";
+      } else if (score >= 40) {
+        emoji = '🎵'; title = 'Getting There!';
+        msg = "Not bad! Head over to the Country Music page to brush up and try again.";
+      } else {
+        emoji = '🪕'; title = 'Keep Listening!';
+        msg = "Looks like it's time to dive into some country music history. You've got this!";
+      }
+
+      document.getElementById('trophyEmoji').textContent = emoji;
+      document.getElementById('resultTitle').textContent = title;
+      document.getElementById('resultMsg').textContent = msg;
+    }
+
+    function restartGame() {
+      current = 0; score = 0; correct = 0; wrong = 0;
+      document.getElementById('scoreVal').textContent = '0';
+      document.getElementById('correctCount').textContent = '0';
+      document.getElementById('wrongCount').textContent = '0';
+      document.getElementById('resultsScreen').style.display = 'none';
+      document.getElementById('scoreBar').style.display = 'flex';
+      document.getElementById('progressWrap').style.display = 'block';
+      document.getElementById('questionCard').style.display = 'block';
+      document.getElementById('btnNext').textContent = 'Next Question →';
+      loadQuestion();
+    }
+  </script>
+
+</body>
+</html>
